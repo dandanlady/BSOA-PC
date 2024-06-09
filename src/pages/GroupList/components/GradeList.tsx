@@ -3,7 +3,7 @@ import type { ProColumns } from '@ant-design/pro-components';
 import {
   ProTable,
 } from '@ant-design/pro-components';
-import { Button } from 'antd';
+import { Button, Popconfirm } from 'antd';
 
 export type TableListItem = {
   key: number;
@@ -58,7 +58,9 @@ const columns: ProColumns<TableListItem>[] = [
     width: 120,
     valueType: 'option',
     render: () => [
-      <a key="link">删除</a>,
+        <Popconfirm  key="clear" title="确认删除" onConfirm={() => {alert('删除啦')}}>
+            <a key="link">删除</a>
+        </Popconfirm>,
     ],
   },
 ];
@@ -87,16 +89,11 @@ const GradeList: React.FC = () =>  {
         //   </LightFilter>
         // ),
         actions: [
-          <Button
-            key="primary"
-            type="primary"
-            onClick={() => {
-              alert('add');
-            }}
-          >
-            清空成绩
-          </Button>,
+            <Popconfirm  key="clear" title="确认清空" onConfirm={() => {alert('清空啦')}}>
+                <Button type="primary">清空成绩</Button>
+            </Popconfirm>,
         ],
+        settings: []
       }}
       rowKey="key"
       search={false}

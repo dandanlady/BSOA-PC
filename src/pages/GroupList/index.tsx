@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { addRule, removeRule, rule, updateRule } from '@/services/ant-design-pro/api';
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined , InboxOutlined} from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import {
   ModalForm,
@@ -11,9 +12,11 @@ import {
   ProTable,
   ProFormTextArea
 } from '@ant-design/pro-components';
-import { Button, message, Popconfirm, Modal } from 'antd';
+import type { UploadProps } from 'antd';
+import { Button, message, Popconfirm, Modal, Upload } from 'antd';
 import React, { useRef, useState } from 'react';
 import GradeList from './components/GradeList'
+const { Dragger } = Upload;
 
 /**
  * 新增
@@ -165,6 +168,28 @@ const TableList: React.FC = () => {
     },
   ];
 
+  const props: UploadProps = {
+    name: 'file',
+    multiple: false,
+    maxCount:1,
+    accept: ".xlsx, .xls",
+    action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
+    onChange(info) {
+      const { status } = info.file;
+      if (status !== 'uploading') {
+        console.log(info.file, info.fileList);
+      }
+      if (status === 'done') {
+        message.success(`${info.file.name} file uploaded successfully.`);
+      } else if (status === 'error') {
+        message.error(`${info.file.name} file upload failed.`);
+      }
+    },
+    onDrop(e) {
+      console.log('Dropped files', e.dataTransfer.files);
+    },
+  };
+
   return (
     <PageContainer>
       <ProTable<API.RuleListItem, API.PageParams>
@@ -172,6 +197,9 @@ const TableList: React.FC = () => {
         actionRef={actionRef}
         rowKey="key"
         search={false}
+        toolbar={{
+          settings: []
+        }}
         toolBarRender={() => [
           <Button
             type="primary"
@@ -225,7 +253,15 @@ const TableList: React.FC = () => {
       </ModalForm>
       {uploadGradesRow && <Modal title="上传成绩" open={!!uploadGradesRow} onCancel={() => setUploadGradesRow(null)} onClose={() => setUploadGradesRow(null)}>
         <p>{uploadGradesRow? uploadGradesRow.name : ""}</p>
-        <ProFormUploadDragger accept="xlsx,xls" title="单击或拖拽文件到此区域上传成绩" name="file" description="仅支持xls、xlsx表格格式"/>
+        <Dragger {...props}>
+          <p className="ant-upload-drag-icon">
+            <InboxOutlined />
+          </p>
+          <p className="ant-upload-text">单击或拖拽文件到此区域上传成绩</p>
+          <p className="ant-upload-hint">
+          仅支持xls、xlsx表格格式
+          </p>
+        </Dragger>
       </Modal>}
       {gradesManageRow && <Modal title="管理成绩" width={1000} open={!!gradesManageRow} onCancel={() => setGradesManageRow(null)} footer={null}><GradeList /></Modal>}
     </PageContainer>

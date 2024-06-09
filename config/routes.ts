@@ -43,13 +43,27 @@ export default [
     component: './GroupList',
     hideInMenu:true,
   },
- 
   {
-    path: '/welcome',
-    name: 'welcome',
-    icon: 'smile',
-    component: './Welcome',
+    name: '用户管理',
+    path: '/userList',
+    component: './UserList',
   },
+  {
+    name: '院校管理',
+    path: '/schoollist',
+    component: './SchoolList',
+  },
+  {
+    name: '配置中心',
+    path: '/setting',
+    component: './Setting',
+  },
+  // {
+  //   path: '/welcome',
+  //   name: 'welcome',
+  //   icon: 'smile',
+  //   component: './Welcome',
+  // },
   {
     path: '/admin',
     name: 'admin',

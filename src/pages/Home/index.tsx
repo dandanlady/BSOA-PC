@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-// import { PageContainer, ProCard } from '@ant-design/pro-components';
+import { history } from '@umijs/max';
 import { Card } from 'antd';
 import styles from './index.module.less'
 import {numList} from './utils'
@@ -22,10 +22,10 @@ export default () => {
                 </div>))}
             </div>
             <div className={styles.left_bottom}>
-                <Card className={`${styles.card}`} title="院校数据排行榜" extra={<a>查看更多</a>}>
+                <Card className={`${styles.card}`} title="院校数据排行榜" extra={<a onClick={() => history.push('/schoollist')}>查看更多</a>}>
                     <RankList />
                 </Card>
-                <Card className={`${styles.card}`} title="用户性别占比" extra={<a>查看更多</a>}>
+                <Card className={`${styles.card}`} title="用户性别占比" extra={<a onClick={() => history.push('/userlist')}>查看更多</a>}>
                     <div className={styles.pie_container}><Pie /></div>
                 </Card>
             </div>
