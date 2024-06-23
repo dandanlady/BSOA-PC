@@ -1,4 +1,4 @@
-import { addRule, rule, updateRule } from '@/services/ant-design-pro/api';
+import { addRule, rule, updateRule } from '@/services/pc/api';
 import { PlusOutlined , InboxOutlined} from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import {

@@ -25,16 +25,17 @@ interface ResponseStructure {
  * @doc https://umijs.org/docs/max/request#配置
  */
 export const errorConfig: RequestConfig = {
+  baseURL: "http://47.102.137.240:8777",
   // 错误处理： umi@3 的错误处理方案。
   errorConfig: {
     // 错误抛出
     errorThrower: (res) => {
-      const { success, data, errorCode, errorMessage, showType } =
-        res as unknown as ResponseStructure;
-      if (!success) {
-        const error: any = new Error(errorMessage);
+      const { code, data, msg } =
+        res as any;
+      if (code != 200 || code != 0) {
+        const error: any = new Error(msg);
         error.name = 'BizError';
-        error.info = { errorCode, errorMessage, showType, data };
+        error.info = { code, msg, data };
         throw error; // 抛出自制的错误
       }
     },
@@ -99,8 +100,8 @@ export const errorConfig: RequestConfig = {
     (response) => {
       // 拦截响应数据，进行个性化处理
       const { data } = response as unknown as ResponseStructure;
-
-      if (data?.success === false) {
+      console.log('2222 response', response)
+      if (data?.code != 200 ) {
         message.error('请求失败！');
       }
       return response;

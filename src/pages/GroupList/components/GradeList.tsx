@@ -1,9 +1,11 @@
 
-import type { ProColumns } from '@ant-design/pro-components';
+import type { ProColumns, ActionType } from '@ant-design/pro-components';
 import {
   ProTable,
 } from '@ant-design/pro-components';
 import { Button, Popconfirm } from 'antd';
+import { getGradeList } from '@/services/pc/api';
+import { useRef } from 'react'
 
 export type TableListItem = {
   key: number;
@@ -27,30 +29,43 @@ for (let i = 0; i < 5; i += 1) {
 const columns: ProColumns<TableListItem>[] = [
   {
     title: '排名',
-    dataIndex: 'index',
+    dataIndex: 'rank',
     render: (_) => <a>{_}</a>,
+    hideInSearch:true,
   },
   {
     title: '姓名',
-    dataIndex: 'name',
+    dataIndex: 'runnerName',
     // align: 'right',
     // sorter: (a, b) => a.containers - b.containers,
   },
   {
     title: '成绩',
-    dataIndex: 'score1',
+    dataIndex: 'raceTimeStr',
+    hideInSearch:true,
   },
   {
     title: '分数',
-    dataIndex: 'score',
+    dataIndex: 'raceScore',
+    hideInSearch:true,
   },
   {
     title: '身份证号',
-    dataIndex: 'num2',
+    dataIndex: 'identityId',
+    hideInSearch:true,
   },
   {
     title: '性别',
-    dataIndex: 'sex',
+    dataIndex: 'gender',
+    hideInSearch:true,
+    valueEnum:{
+      1: {
+        text: "男",
+      },
+      2: {
+        text: "女",
+      },
+    }
   },
   {
     title: '操作',
@@ -65,24 +80,23 @@ const columns: ProColumns<TableListItem>[] = [
   },
 ];
 
-const GradeList: React.FC = () =>  {
+const GradeList: React.FC<{data:any}> = ({data}) =>  {
+  const actionRef = useRef<ActionType>();
   return (
     <ProTable<TableListItem>
       columns={columns}
-      request={(params, sorter, filter) => {
+      actionRef={actionRef}
+      request={async (params, sorter, filter) => {
         // 表单搜索项会从 params 传入，传递给后端接口。
-        console.log(params, sorter, filter);
-        return Promise.resolve({
-          data: tableListDataSource,
-          success: true,
-        });
+      return await getGradeList({...params,...filter, groupId:data?.id});
       }}
       toolbar={{
-        search: {
-          onSearch: (value: string) => {
-            alert(value);
-          },
-        },
+        // search: {
+        //   onSearch: (value: string) => {
+        //     alert(value);
+        //     actionRef.current && actionRef.current.
+        //   }
+        // },
         // filter: (
         //   <LightFilter>
         //     <ProFormDatePicker name="startdate" label="响应日期" />
@@ -96,7 +110,8 @@ const GradeList: React.FC = () =>  {
         settings: []
       }}
       rowKey="key"
-      search={false}
+      // search={false}
+
     />
   );
 };

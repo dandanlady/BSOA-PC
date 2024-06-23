@@ -1,4 +1,4 @@
-import { addRule, removeRule, rule, updateRule } from '@/services/ant-design-pro/api';
+import { addRule, removeRule, getMatchList,saveOrUpdateMatch, deleteMatch } from '@/services/pc/api';
 import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import {
@@ -10,55 +10,36 @@ import {
 } from '@ant-design/pro-components';
 import { Button, message, Popconfirm } from 'antd';
 import React, { useRef, useState } from 'react';
+import dayjs from "dayjs";
 
 /**
  * 新增
  * @param fields
  */
-const handleAdd = async (fields: API.RuleListItem) => {
+const handleAddOrUpdate = async (fields: API.RuleListItem) => {
   const hide = message.loading('正在添加');
   try {
-    await addRule({ ...fields });
+    await saveOrUpdateMatch({ ...fields });
     hide();
-    message.success('Added successfully');
+    message.success('操作成功');
     return true;
   } catch (error) {
     hide();
-    message.error('Adding failed, please try again!');
+    message.error('操作失败，请稍后再试!');
     return false;
   }
 };
 
-/**
- * 更新
- * @param fields
- */
-const handleUpdate = async (fields: any) => {
-  const hide = message.loading('更新中');
-  try {
-    await updateRule(fields);
-    hide();
-
-    message.success('更新成功');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('更新失败，稍后重视');
-    return false;
-  }
-};
 
 /**
  * 删除
  * @param selectedRows
  */
-const handleRemove = async (selectedRow: API.RuleListItem) => {
+const handleRemove = async (selectedRow: any) => {
   const hide = message.loading('正在删除');
   if (!selectedRow) return true;
   try {
-    await removeRule({
-      key: selectedRow.key
-    });
+    await deleteMatch(selectedRow.id);
     hide();
     message.success('操作成功');
     return true;
@@ -82,7 +63,7 @@ const TableList: React.FC = () => {
   const columns: ProColumns<API.RuleListItem>[] = [
     {
       title: "赛事编号",
-      dataIndex: 'num',
+      dataIndex: 'code',
       // tip: 'The rule name is the unique key',
       
     },
@@ -92,12 +73,12 @@ const TableList: React.FC = () => {
     },
     {
       title: "组别",
-      dataIndex: 'group',
+      dataIndex: 'location',
       hideInForm:true,
     },
     {
       title: "参赛人数",
-      dataIndex: 'count',
+      dataIndex: 'playerNum',
       hideInForm:true,
     },
     {
@@ -120,18 +101,19 @@ const TableList: React.FC = () => {
     },
     {
       title: "赛事日期",
-      dataIndex: 'time',
-      valueType: "dateRange"
+      dataIndex: 'startTime',
+      valueType: "dateRange",
+      render: (_, record:any) => dayjs(record.startTime).format("YYYY-MM-DD")
     },
     
     {
       title: "操作",
       dataIndex: 'option',
       valueType: 'option',
-      render: (_, record) => [
+      render: (_, record:any) => [
         <a
           key="config"
-         href="/matchlist/groupelist"
+         href={`/matchlist/groupelist?id=${record?.id}`}
         >
           管理
         </a>,
@@ -145,7 +127,7 @@ const TableList: React.FC = () => {
         >
           编辑
         </a>,
-         <Popconfirm key="delete" title="确认删除" onConfirm={()=>{handleRemove(record)}}>
+         <Popconfirm key="delete" title="确认删除" onConfirm={async ()=>{ await handleRemove(record); actionRef.current && actionRef.current.reload();}}>
          <a key="subscribeAlert" style={{color:"red"}} >
           删除
         </a>
@@ -186,7 +168,7 @@ const TableList: React.FC = () => {
          导出
         </Button>,
         ]}
-        request={rule}
+        request={getMatchList}
         columns={columns}
       />
       <ModalForm
@@ -197,7 +179,7 @@ const TableList: React.FC = () => {
         initialValues={createModalOpen.type === "edit"?currentRow:{}}
         onOpenChange={() => {handleModalOpen({show:false});setCurrentRow({}) }}
         onFinish={async (value) => {
-          const success = createModalOpen.type === "add" ? await handleAdd(value as API.RuleListItem) : await handleUpdate({...currentRow, ...value});
+          const success = await handleAddOrUpdate(createModalOpen.type === "add" ?value: {...currentRow, ...value});
           if (success) {
             handleModalOpen({show:false});
             if (actionRef.current) {
@@ -225,7 +207,7 @@ const TableList: React.FC = () => {
                 message: "输入参赛人数",
               },
             ]}
-            name="count" 
+            name="playerNum" 
             label="参赛人数"
           />
           <ProFormDatePicker width="md" 
@@ -235,7 +217,7 @@ const TableList: React.FC = () => {
                   message: "输入时间",
                 },
               ]} 
-              name="time" 
+              name="startTime" 
               label="赛事时间"
             />
           <ProFormText width="md" 
@@ -245,7 +227,7 @@ const TableList: React.FC = () => {
                 message: "输入地点",
               },
             ]} 
-            name="position" 
+            name="location" 
             label="赛事地点"
           />
       </ModalForm>

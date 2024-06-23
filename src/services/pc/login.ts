@@ -6,13 +6,13 @@ import { request } from '@umijs/max';
 export async function getFakeCaptcha(
   params: {
     // query
-    /** 手机号 */
-    phone?: string;
+    userName?: string;
+    password: string;
   },
   options?: { [key: string]: any },
 ) {
-  return request<API.FakeCaptcha>('/api/login/captcha', {
-    method: 'GET',
+  return request<API.FakeCaptcha>('/admin/login', {
+    method: 'POST',
     params: {
       ...params,
     },

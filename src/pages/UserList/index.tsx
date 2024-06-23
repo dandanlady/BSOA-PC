@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { addRule, removeRule, rule, updateRule } from '@/services/ant-design-pro/api';
+import { addRule, removeRule, rule, updateRule } from '@/services/pc/api';
 import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import {

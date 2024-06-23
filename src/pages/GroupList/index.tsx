@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { addRule, removeRule, rule, updateRule } from '@/services/ant-design-pro/api';
+import { addRule, deleteGroup, getGroupList, saveOrUpdateGroup } from '@/services/pc/api';
 import { PlusOutlined , InboxOutlined} from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import {
@@ -15,6 +15,7 @@ import {
 import type { UploadProps } from 'antd';
 import { Button, message, Popconfirm, Modal, Upload } from 'antd';
 import React, { useRef, useState } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
 import GradeList from './components/GradeList'
 const { Dragger } = Upload;
 
@@ -22,10 +23,10 @@ const { Dragger } = Upload;
  * 新增
  * @param fields
  */
-const handleAdd = async (fields: API.RuleListItem) => {
+const handleAddOrUpdate = async (fields: API.RuleListItem) => {
   const hide = message.loading('正在添加');
   try {
-    await addRule({ ...fields });
+    await saveOrUpdateGroup({ ...fields });
     hide();
     message.success('Added successfully');
     return true;
@@ -36,36 +37,17 @@ const handleAdd = async (fields: API.RuleListItem) => {
   }
 };
 
-/**
- * 更新
- * @param fields
- */
-const handleUpdate = async (fields: any) => {
-  const hide = message.loading('更新中');
-  try {
-    await updateRule(fields);
-    hide();
 
-    message.success('更新成功');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('更新失败，稍后重视');
-    return false;
-  }
-};
 
 /**
  * 删除
  * @param selectedRow
  */
-const handleRemove = async (selectedRow: API.RuleListItem) => {
+const handleRemove = async (selectedRow: any) => {
   const hide = message.loading('正在删除');
   if (!selectedRow) return true;
   try {
-    await removeRule({
-      key: selectedRow.key
-    });
+    await deleteGroup(selectedRow.id);
     hide();
     message.success('操作成功');
     return true;
@@ -81,54 +63,56 @@ const TableList: React.FC = () => {
   const [createModalOpen, handleModalOpen] = useState<{show:boolean, type?:"add"| "edit"| null}>({show:false});
   const actionRef = useRef<ActionType>();
   // 当前操作项
-  const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
+  const [currentRow, setCurrentRow] = useState<any>();
   // 上传成绩弹窗
   const [uploadGradesRow, setUploadGradesRow] = useState<any>(null);
   //  成绩管理弹窗
   const [gradesManageRow, setGradesManageRow] = useState<any>(null);
+  const [searchParams]= useSearchParams()
+  const  competitionId = searchParams.get('id')
   
 
   const columns: ProColumns<API.RuleListItem>[] = [
     {
       title: "组别编号",
-      dataIndex: 'num',
+      dataIndex: 'groupCode',
       hideInForm:true,
       // tip: 'The rule name is the unique key',
       
     },
     {
       title: "组别名",
-      dataIndex: 'name',
+      dataIndex: 'groupName',
       hideInForm:true,
     },
     {
       title: "积分",
-      dataIndex: 'group',
+      dataIndex: 'racePoint',
       hideInForm:true,
     },
     {
       title: "距离",
-      dataIndex: 'discount',
+      dataIndex: 'distance',
       hideInForm:true,
     },
     {
       title: "组别描述",
-      dataIndex: 'desc',
+      dataIndex: 'groupDescribe',
       hideInForm:true,
     },
     {
       title: "参赛人数",
-      dataIndex: 'count',
+      dataIndex: 'participantsNum',
       hideInForm:true,
     },
     {
       title: "比赛时间",
-      dataIndex: 'time',
+      dataIndex: 'startTime',
       hideInForm:true,
     },
     {
       title: "状态",
-      dataIndex: 'status',
+      dataIndex: 'groupStatus',
       hideInForm:true,
       valueEnum: {
         0: {
@@ -190,6 +174,8 @@ const TableList: React.FC = () => {
     },
   };
 
+  console.log('competitionId', competitionId)
+
   return (
     <PageContainer>
       <ProTable<API.RuleListItem, API.PageParams>
@@ -220,7 +206,7 @@ const TableList: React.FC = () => {
          导出
         </Button>,
         ]}
-        request={rule}
+        request={(params) => getGroupList({...params, competitionId})}
         columns={columns}
       />
       <ModalForm
@@ -229,10 +215,13 @@ const TableList: React.FC = () => {
         layout="horizontal"
         key={createModalOpen.type}
         open={createModalOpen.show}
-        initialValues={createModalOpen.type === "edit"?currentRow:{}}
+        initialValues={createModalOpen.type === "edit"?{...currentRow, time:[currentRow?.startTime, currentRow?.finishTime]}:{}}
         onOpenChange={() => {handleModalOpen({show:false});setCurrentRow({}) }}
         onFinish={async (value) => {
-          const success = createModalOpen.type === "add" ? await handleAdd(value as API.RuleListItem) : await handleUpdate({...currentRow, ...value});
+         const [startTime, finishTime] = value.time
+         value = {...value, startTime, finishTime, competitionId}
+         delete value.time;
+          const success = await handleAddOrUpdate(createModalOpen.type === "add" ?value: {...currentRow, ...value});
           if (success) {
             handleModalOpen({show:false});
             if (actionRef.current) {
@@ -242,14 +231,14 @@ const TableList: React.FC = () => {
           }
         }}
       >
-        <ProFormText rules={[{required: true, message: "请输入"}]} width="md" name="name" label="组别名称" />
-        <ProFormDigit rules={[{required: true, message: "请输入"}]} width="md" name="discount" label="距离(km)" />
-        <ProFormDigit rules={[{required: true, message: "请输入"}]} width="md" name="d1" label="累计爬升" />
-        <ProFormDigit rules={[{required: true, message: "请输入"}]} width="md" name="d2" label="累计下降" />
+        <ProFormText rules={[{required: true, message: "请输入"}]} width="md" name="groupName" label="组别名称" />
+        <ProFormDigit rules={[{required: true, message: "请输入"}]} width="md" name="distance" label="距离(km)" />
+        <ProFormDigit rules={[{required: true, message: "请输入"}]} width="md" name="elevationGain" label="累计爬升" />
+        <ProFormDigit rules={[{required: true, message: "请输入"}]} width="md" name="elevationLoss" label="累计下降" />
         <ProFormDateTimeRangePicker width="md" rules={[{required: true, message: "请输入"}]} name="time" label="赛事时间" />
-        <ProFormDigit rules={[{required: true, message: "请输入"}]} width="md" name="d3" label="参赛人数" />
-        <ProFormDigit rules={[{required: true, message: "请输入"}]} width="md" name="d4" label="补充点数" />
-        <ProFormTextArea rules={[{required: true, message: "请输入"}]} width="md" name="d5" label="级别描述" />
+        <ProFormDigit rules={[{required: true, message: "请输入"}]} width="md" name="participantsNum" label="参赛人数" />
+        <ProFormDigit rules={[{required: true, message: "请输入"}]} width="md" name="cpNum" label="补充点数" />
+        <ProFormTextArea rules={[{required: true, message: "请输入"}]} width="md" name="groupDescribe" label="级别描述" />
       </ModalForm>
       {uploadGradesRow && <Modal title="上传成绩" open={!!uploadGradesRow} onCancel={() => setUploadGradesRow(null)} onClose={() => setUploadGradesRow(null)}>
         <p>{uploadGradesRow? uploadGradesRow.name : ""}</p>
@@ -263,7 +252,7 @@ const TableList: React.FC = () => {
           </p>
         </Dragger>
       </Modal>}
-      {gradesManageRow && <Modal title="管理成绩" width={1000} open={!!gradesManageRow} onCancel={() => setGradesManageRow(null)} footer={null}><GradeList /></Modal>}
+      {gradesManageRow && <Modal title="管理成绩" width={1000} open={!!gradesManageRow} onCancel={() => setGradesManageRow(null)} footer={null}><GradeList key={gradesManageRow?.groupId} data={gradesManageRow}/></Modal>}
     </PageContainer>
   );
 };
