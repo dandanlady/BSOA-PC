@@ -78,10 +78,12 @@ export const errorConfig: RequestConfig = {
         // 请求已经成功发起，但没有收到响应
         // \`error.request\` 在浏览器中是 XMLHttpRequest 的实例，
         // 而在node.js中是 http.ClientRequest 的实例
-        message.error('None response! Please retry.');
+        // message.error('None response! Please retry.');
+        message.error(error.message || '操作失败，稍后再试');
       } else {
+        console.log('1111 error', error)
         // 发送请求时出了点问题
-        message.error('Request error, please retry.');
+        message.error(error.message || '操作失败，稍后再试');
       }
     },
   },
@@ -90,8 +92,9 @@ export const errorConfig: RequestConfig = {
   requestInterceptors: [
     (config: RequestOptions) => {
       // 拦截请求配置，进行个性化处理。
-      const url = config?.url?.concat('?token = 123');
-      return { ...config, url };
+      // const url = config?.url?.concat('?token = 123');
+      // return { ...config, url };
+      return config
     },
   ],
 
@@ -102,7 +105,9 @@ export const errorConfig: RequestConfig = {
       const { data } = response as unknown as ResponseStructure;
       console.log('2222 response', response)
       if (data?.code != 200 ) {
-        message.error('请求失败！');
+        // message.error('请求失败！');
+        throw new Error(data.msg)
+        // return data
       }
       return response;
     },

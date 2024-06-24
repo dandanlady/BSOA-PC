@@ -36,7 +36,7 @@ const handleRemove = async (selectedRow: API.RuleListItem) => {
   }
 };
 
-const TableList: React.FC<{onClose:() => void}> = ({onClose}) => {
+const TableList: React.FC<{data:any; onClose:() => void}> = ({data, onClose}) => {
   const actionRef = useRef<ActionType>();
 
   // 列表配置项
@@ -79,19 +79,19 @@ const TableList: React.FC<{onClose:() => void}> = ({onClose}) => {
     },
   ];
   // 用户信息展示项， key对应的是接口参数名
-  const userInfoFields = [
-      {label:"用户编号", key:'num1', value: "12345678"},
-      {label:"姓名", key:'num2', value: "-"},
-      {label:"昵称", key:'num3', value: "-"},
-      {label:"证件类型", key:'num4', value: "-"},
-      {label:"手机号", key:'num5', value: "-"},
-      {label:"证件号", key:'num6', value: "-"},
-      {label:"状态", key:'num7', value: "-"},
-      {label:"性别", key:'num8', value: "-"},
-      {label:"所属院校", key:'num9', value: "-"},
-      {label:"参赛场次", key:'num10', value: "-"},
-      {label:"实力分", key:'num11', value: "-"},
-      {label:"积分", key:'num12', value: "-"},
+  const userInfoFields:any = [
+      {label:"用户编号", key:'userCode'},
+      {label:"姓名", key:'realName'},
+      {label:"昵称", key:'nickName'},
+      {label:"证件类型", key:'identityType', valueEnum:{1:"身份证", 2:"护照"}},
+      {label:"手机号", key:'phone'},
+      {label:"证件号", key:'identityId'},
+      {label:"状态", key:'status', valueEnum:{0:"未认证", 1:"已认证"}},
+      {label:"性别", key:'gender', valueEnum:{1:"男", 2:"女"}},
+      {label:"所属院校", key:'collegeName'},
+      {label:"参赛场次", key:'competitionNum'},
+      {label:"实力分", key:'strengthScore'},
+      {label:"积分", key:'tally1y'},
   ]
 
   return (
@@ -103,13 +103,13 @@ const TableList: React.FC<{onClose:() => void}> = ({onClose}) => {
             // title="个人信息"
             // tooltip="包含了从服务器请求，columns等功能"
         >
-            {userInfoFields.map((t, _index) =>  
+            {userInfoFields.map((t:any, _index:number) =>  
                 <ProDescriptions.Item
                     key={t.key}
                     label={t.label}
                     valueType="text"
                     >
-                        {t.value}
+                        {t.valueEnum ? t.valueEnum[data[t.key]] : data[t.key] || '-'}
                     </ProDescriptions.Item>
                 )}
         </ProDescriptions>

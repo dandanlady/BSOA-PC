@@ -114,11 +114,11 @@ export async function saveOrUpdateGroup(options?: { [key: string]: any }) {
 }
 
 /** 删除辑赛事 */
-export async function deleteGroup(id:any) {
+export async function deleteGroup(groupId:any) {
   return request<any>('/admin/competition/group/delete', {
     method: 'POST',
     data:{
-    id
+      groupId
     }
   });
 }
@@ -146,6 +146,73 @@ options?: { [key: string]: any }) {
     data:res.data?.list
   };
 }
+
+
+
+
+/** 删除辑赛事 */
+export async function deleteGrade(data:{scoreId:any, groupId:any, clearAll: boolean}) {
+  return request<any>('/admin/competition/group/record/delete', {
+    method: 'POST',
+    data
+  });
+}
+
+
+/** 获取成绩列表 */
+export async function getUserList(params: any,options?: { [key: string]: any }) {
+  const res = await request<any>('/admin/user/list', {
+    method: 'GET',
+    params: {
+      ...params,
+      pageNo:params.current
+    },
+    ...(options || {}),
+  });
+  console.log('res', res)
+  return {
+    total:res.data?.total,
+    data:res.data?.list
+  };
+}
+
+
+/** 获取学校列表 */
+export async function getSchoolList(params: any,options?: { [key: string]: any }) {
+  const res = await request<any>('/admin/college/list', {
+    method: 'GET',
+    params: {
+      ...params,
+      pageNo:params.current
+    },
+    ...(options || {}),
+  });
+  console.log('res', res)
+  return {
+    total:res.data?.total,
+    data:res.data?.list
+  };
+}
+
+
+/** 新建/编辑院校 /api/rule */
+export async function saveOrUpdateSchool(options?: { [key: string]: any }) {
+  return request<API.RuleListItem>('/admin/college/saveOrUpdate', {
+    method: 'POST',
+    data:{
+      ...(options || {}),
+    }
+  });
+}
+
+/** 删除辑赛事 */
+export async function deleteSchool(id:any) {
+  return request<any>(`/admin/college/delete/${id}`, {
+    method: 'POST',
+  });
+}
+
+
 
 
 

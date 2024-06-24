@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { addRule, removeRule, rule, updateRule } from '@/services/pc/api';
+import { addRule, removeRule, getUserList, updateRule } from '@/services/pc/api';
 import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import {
@@ -74,7 +74,7 @@ const handleRemove = async (selectedRow: API.RuleListItem) => {
 const TableList: React.FC = () => {
   const actionRef = useRef<ActionType>();
   // 当前查看用户数据，有数据则展示用户弹窗，没有则不展示
-  const [currentRow, setCurrentRow] = useState<API.RuleListItem|null>();
+  const [currentRow, setCurrentRow] = useState<any>();
   
 
   const columns: ProColumns<API.RuleListItem>[] = [
@@ -86,41 +86,49 @@ const TableList: React.FC = () => {
     },
     {
       title: "用户姓名",
-      dataIndex: 'name',
+      dataIndex: 'realName',
     },
     {
       title: "性别",
-      dataIndex: 'sex',
+      dataIndex: 'gender',
       hideInSearch:true,
+      valueEnum:{
+        1: {
+          text: "男",
+        },
+        2: {
+          text: "女",
+        },
+      }
     },
     {
       title: "昵称",
-      dataIndex: 'smallName',
+      dataIndex: 'nickName',
       hideInSearch:true,
     },
     {
       title: "所属院校",
-      dataIndex: 'school',
+      dataIndex: 'collegeName',
     },
     {
       title: "参赛场次",
-      dataIndex: 'group',
+      dataIndex: 'competitionNum',
       hideInSearch:true,
     },
     {
       title: "实力分",
-      dataIndex: 'count',
+      dataIndex: 'strengthScore',
       hideInSearch:true,
     },
     {
       title: "积分",
-      dataIndex: 'count2',
+      dataIndex: 'tally1y',
       hideInSearch:true,
     },
     {
       title: "注册时间",
-      dataIndex: 'count2',
-      valueType:"dateRange"
+      dataIndex: 'createAt',
+      valueType:"date"
     },
     {
       title: "状态",
@@ -180,10 +188,10 @@ const TableList: React.FC = () => {
          导出
         </Button>,
         ]}
-        request={rule}
+        request={getUserList}
         columns={columns}
       />
-      {!!currentRow?.name && <UserDetailModal onClose={() => setCurrentRow(null)} />}
+      {!!currentRow?.id && <UserDetailModal onClose={() => setCurrentRow(null)} data={currentRow} />}
     </PageContainer>
   );
 };

@@ -1,4 +1,4 @@
-import { addRule, rule, updateRule } from '@/services/pc/api';
+import { getSchoolList, saveOrUpdateSchool, deleteSchool } from '@/services/pc/api';
 import { PlusOutlined , InboxOutlined} from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import {
@@ -12,42 +12,7 @@ import { Button, message, Upload, Modal } from 'antd';
 import React, { useRef, useState } from 'react';
 const { Dragger } = Upload;
 
-/**
- * 新增
- * @param fields
- */
-const handleAdd = async (fields: API.RuleListItem) => {
-  const hide = message.loading('正在添加');
-  try {
-    await addRule({ ...fields });
-    hide();
-    message.success('Added successfully');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('Adding failed, please try again!');
-    return false;
-  }
-};
 
-/**
- * 更新
- * @param fields
- */
-const handleUpdate = async (fields: any) => {
-  const hide = message.loading('更新中');
-  try {
-    await updateRule(fields);
-    hide();
-
-    message.success('更新成功');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('更新失败，稍后重视');
-    return false;
-  }
-};
 
 
 const TableList: React.FC = () => {
@@ -58,12 +23,49 @@ const TableList: React.FC = () => {
 
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
+
+  /**
+ * 新增
+ * @param fields
+ */
+const handleAddOrUpdate = async (fields: API.RuleListItem) => {
+  const hide = message.loading('正在添加');
+  try {
+    await saveOrUpdateSchool({ ...fields });
+    hide();
+    message.success('操作成功');
+    actionRef.current && actionRef.current.reload();
+    return true;
+  } catch (error) {
+    hide();
+    return false;
+  }
+};
+
+/**
+ * 删除
+ * @param selectedRow
+ */
+//  const handleRemove = async (selectedRow: any) => {
+//   const hide = message.loading('正在删除');
+//   if (!selectedRow) return true;
+//   try {
+//     await deleteSchool(selectedRow.id);
+//     hide();
+//     message.success('操作成功');
+//     actionRef.current && actionRef.current.reload();
+//     return true;
+//   } catch (error) {
+//     hide();
+//     return false;
+//   }
+// };
   
 
   const columns: ProColumns<API.RuleListItem>[] = [
     {
       title: "院校编号",
-      dataIndex: 'num',
+      dataIndex: 'code',
       // tip: 'The rule name is the unique key',
       
     },
@@ -73,11 +75,11 @@ const TableList: React.FC = () => {
     },
     {
       title: "队员人数",
-      dataIndex: 'group',
+      dataIndex: 'runnerNum',
     },
     {
       title: "领队",
-      dataIndex: 'count',
+      dataIndex: 'leaderName',
       hideInSearch:true,
     },
     
@@ -163,7 +165,7 @@ const TableList: React.FC = () => {
           导出
           </Button>,
         ]}
-        request={rule}
+        request={getSchoolList}
         columns={columns}
       />
       <ModalForm
@@ -174,13 +176,9 @@ const TableList: React.FC = () => {
         initialValues={createModalOpen.type === "edit"?currentRow:{}}
         onOpenChange={() => {handleModalOpen({show:false});setCurrentRow({}) }}
         onFinish={async (value) => {
-          const success = createModalOpen.type === "add" ? await handleAdd(value as API.RuleListItem) : await handleUpdate({...currentRow, ...value});
+          const success = await handleAddOrUpdate(createModalOpen.type === "add" ?value: {...currentRow, ...value});
           if (success) {
             handleModalOpen({show:false});
-            if (actionRef.current) {
-              actionRef.current.reload();
-            }
-            
           }
         }}
       >
@@ -202,7 +200,7 @@ const TableList: React.FC = () => {
                 message: "请输入",
               },
             ]}
-            name="count" 
+            name="leaderName" 
             label="领队"
           />
       </ModalForm>
