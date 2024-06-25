@@ -214,7 +214,41 @@ export async function deleteSchool(id:any) {
 
 
 
+/** 获取学校列表 */
+export async function getBannerList(params: any,options?: { [key: string]: any }) {
+  const res = await request<any>('/admin/banner/list', {
+    method: 'GET',
+    params: {
+      ...params,
+      pageNo:params.current
+    },
+    ...(options || {}),
+  });
+  console.log('res', res)
+  return {
+    total:res.data?.total,
+    data:res.data?.list
+  };
+}
 
+
+/** 删除辑赛事 */
+export async function deleteBanner(id:any) {
+  return request<any>(`/admin/banner/delete/${id}`, {
+    method: 'POST'
+  });
+}
+
+
+/** 新建/编辑院校 /api/rule */
+export async function saveOrUpdateBanner(options?: { [key: string]: any }) {
+  return request<API.RuleListItem>('/admin/banner/saveOrUpdate', {
+    method: 'POST',
+    data:{
+      ...(options || {}),
+    }
+  });
+}
 
 
 

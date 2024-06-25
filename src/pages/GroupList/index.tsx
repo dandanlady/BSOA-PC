@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { addRule, deleteGroup, getGroupList, saveOrUpdateGroup } from '@/services/pc/api';
+import { deleteGroup, getGroupList, saveOrUpdateGroup } from '@/services/pc/api';
 import { PlusOutlined , InboxOutlined} from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import {
@@ -28,11 +28,10 @@ const handleAddOrUpdate = async (fields: API.RuleListItem) => {
   try {
     await saveOrUpdateGroup({ ...fields });
     hide();
-    message.success('Added successfully');
+    message.success('操作成功');
     return true;
   } catch (error) {
     hide();
-    message.error('Adding failed, please try again!');
     return false;
   }
 };
@@ -156,22 +155,26 @@ const TableList: React.FC = () => {
     name: 'file',
     multiple: false,
     maxCount:1,
+    data: {groupId: uploadGradesRow?.id},
     accept: ".xlsx, .xls",
-    action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
+    action: 'http://47.102.137.240:8777/admin/competition/group/scoreImport',
     onChange(info) {
+      console.log('2222 info', info)
       const { status } = info.file;
       if (status !== 'uploading') {
         console.log(info.file, info.fileList);
       }
       if (status === 'done') {
-        message.success(`${info.file.name} file uploaded successfully.`);
+        message.success(`${info.file.name} 上传成功.`);
+        setUploadGradesRow(null)
       } else if (status === 'error') {
-        message.error(`${info.file.name} file upload failed.`);
+        message.error(`${info.file.name} 上传失败.`);
       }
     },
     onDrop(e) {
       console.log('Dropped files', e.dataTransfer.files);
     },
+    
   };
 
   console.log('competitionId', competitionId)
@@ -240,7 +243,7 @@ const TableList: React.FC = () => {
         <ProFormDigit rules={[{required: true, message: "请输入"}]} width="md" name="cpNum" label="补充点数" />
         <ProFormTextArea rules={[{required: true, message: "请输入"}]} width="md" name="groupDescribe" label="级别描述" />
       </ModalForm>
-      {uploadGradesRow && <Modal title="上传成绩" open={!!uploadGradesRow} onCancel={() => setUploadGradesRow(null)} onClose={() => setUploadGradesRow(null)}>
+      {uploadGradesRow && <Modal key={uploadGradesRow?.id} title="上传成绩" open={!!uploadGradesRow} onCancel={() => setUploadGradesRow(null)} onClose={() => setUploadGradesRow(null)}>
         <p>{uploadGradesRow? uploadGradesRow.name : ""}</p>
         <Dragger {...props}>
           <p className="ant-upload-drag-icon">
