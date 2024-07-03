@@ -1,4 +1,4 @@
-import { addRule, removeRule, getMatchList,saveOrUpdateMatch, deleteMatch } from '@/services/pc/api';
+import { getMatchList,saveOrUpdateMatch, deleteMatch } from '@/services/pc/api';
 import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import {
@@ -11,6 +11,8 @@ import {
 import { Button, message, Popconfirm } from 'antd';
 import React, { useRef, useState } from 'react';
 import dayjs from "dayjs";
+import { baseURL } from '../../../config/const';
+import { jsonToQueryString } from '../../utils/helper'
 
 /**
  * 新增
@@ -55,6 +57,8 @@ const TableList: React.FC = () => {
       新增/编辑窗口的弹窗
    *  */
   const [createModalOpen, handleModalOpen] = useState<{show:boolean, type?:"add"| "edit"| null}>({show:false});
+ // 请求参数
+ const [searchParams, setSearchParams] = useState<any>();
 
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
@@ -162,13 +166,14 @@ const TableList: React.FC = () => {
           type="default"
           key="primary"
           onClick={() => {
-            // handleModalOpen(true);
-          }}
+            const {current,pageSize, ...params} = searchParams
+            window.open(baseURL+ '/admin/competition/export?'+ jsonToQueryString(params))
+        }}
         >
          导出
         </Button>,
         ]}
-        request={getMatchList}
+        request={(params) => { setSearchParams(params); return getMatchList(params)}}
         columns={columns}
       />
       <ModalForm

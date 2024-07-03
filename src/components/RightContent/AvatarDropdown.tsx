@@ -67,7 +67,7 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
       const { key } = event;
       if (key === 'logout') {
         flushSync(() => {
-          setInitialState((s) => ({ ...s, currentUser: undefined }));
+          setInitialState((s:any) => ({ ...s, currentUser: undefined }));
         });
         loginOut();
         return;
@@ -79,13 +79,13 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
 
   const loading = (
     <span className={styles.action}>
-      <Spin
+      {/* <Spin
         size="small"
         style={{
           marginLeft: 8,
           marginRight: 8,
         }}
-      />
+      /> */}
     </span>
   );
 

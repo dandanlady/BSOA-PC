@@ -240,13 +240,14 @@ export async function deleteBanner(id:any) {
 }
 
 
-/** 新建/编辑院校 /api/rule */
-export async function saveOrUpdateBanner(options?: { [key: string]: any }) {
-  return request<API.RuleListItem>('/admin/banner/saveOrUpdate', {
+/** 新建/编辑院校 */
+export async function saveOrUpdateBanner(data: any ) {
+  return request<any>('/admin/banner/saveOrUpdate', {
     method: 'POST',
-    data:{
-      ...(options || {}),
-    }
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    },
+    data,
   });
 }
 

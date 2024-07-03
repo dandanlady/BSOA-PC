@@ -1,6 +1,7 @@
 ﻿import type { RequestOptions } from '@@/plugin-request/request';
 import type { RequestConfig } from '@umijs/max';
 import { message, notification } from 'antd';
+import { baseURL } from '../config/const';
 
 // 错误处理方案： 错误类型
 enum ErrorShowType {
@@ -25,7 +26,7 @@ interface ResponseStructure {
  * @doc https://umijs.org/docs/max/request#配置
  */
 export const errorConfig: RequestConfig = {
-  baseURL: "http://47.102.137.240:8777",
+  baseURL,
   // 错误处理： umi@3 的错误处理方案。
   errorConfig: {
     // 错误抛出

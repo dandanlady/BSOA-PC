@@ -1,4 +1,4 @@
-import { getSchoolList, saveOrUpdateSchool, deleteSchool } from '@/services/pc/api';
+import { getSchoolList, saveOrUpdateSchool } from '@/services/pc/api';
 import { PlusOutlined , InboxOutlined} from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import {
@@ -11,6 +11,8 @@ import type { UploadProps } from 'antd';
 import { Button, message, Upload, Modal } from 'antd';
 import React, { useRef, useState } from 'react';
 const { Dragger } = Upload;
+import { baseURL } from '../../../config/const';
+import { jsonToQueryString } from '../../utils/helper'
 
 
 
@@ -20,6 +22,8 @@ const TableList: React.FC = () => {
   const [uploadModalOpen, handleUploadModalOpen] = useState<boolean>(false);
  // 新增/编辑窗口的弹窗
   const [createModalOpen, handleModalOpen] = useState<{show:boolean, type?:"add"| "edit"| null}>({show:false});
+    // 请求参数
+    const [searchParams, setSearchParams] = useState<any>();
 
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
@@ -159,13 +163,14 @@ const handleAddOrUpdate = async (fields: API.RuleListItem) => {
             type="default"
             key="primary"
             onClick={() => {
-              // handleModalOpen(true);
+                const {current,pageSize, ...params} = searchParams
+                window.open(baseURL+ '/admin/college/export?'+ jsonToQueryString(params))
             }}
           >
           导出
           </Button>,
         ]}
-        request={getSchoolList}
+        request={(params) => { setSearchParams(params); return getSchoolList(params)}}
         columns={columns}
       />
       <ModalForm

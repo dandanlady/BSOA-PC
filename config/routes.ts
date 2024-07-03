@@ -25,12 +25,12 @@ export default [
   {
     path: '/home',
     name: '工作台',
-    icon: 'dashboard',
+    // icon: 'dashboard',
     component: './Home',
    },
    {
     name: '赛事列表',
-    icon: 'table',
+    // icon: 'table',
     path: '/matchlist',
     component: './MatchList',
     // routes:[

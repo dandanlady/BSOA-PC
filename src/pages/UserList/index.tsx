@@ -1,80 +1,24 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { addRule, removeRule, getUserList, updateRule } from '@/services/pc/api';
-import { PlusOutlined } from '@ant-design/icons';
+import { getUserList } from '@/services/pc/api';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import {
-  ModalForm,
   PageContainer,
-  ProFormText,
-  ProFormDatePicker,
   ProTable,
 } from '@ant-design/pro-components';
-import { Button, message, Popconfirm } from 'antd';
+import { Button } from 'antd';
 import React, { useRef, useState } from 'react';
 import UserDetailModal from './UserDetailModal';
+import { jsonToQueryString } from '../../utils/helper'
+import { baseURL } from '../../../config/const';
 
-/**
- * 新增
- * @param fields
- */
-const handleAdd = async (fields: API.RuleListItem) => {
-  const hide = message.loading('正在添加');
-  try {
-    await addRule({ ...fields });
-    hide();
-    message.success('操作成功');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('新增失败，请稍后再试');
-    return false;
-  }
-};
 
-/**
- * 更新
- * @param fields
- */
-const handleUpdate = async (fields: any) => {
-  const hide = message.loading('更新中');
-  try {
-    await updateRule(fields);
-    hide();
-
-    message.success('更新成功');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('更新失败，稍后重视');
-    return false;
-  }
-};
-
-/**
- * 删除
- * @param selectedRows
- */
-const handleRemove = async (selectedRow: API.RuleListItem) => {
-  const hide = message.loading('正在删除');
-  if (!selectedRow) return true;
-  try {
-    await removeRule({
-      key: selectedRow.key
-    });
-    hide();
-    message.success('操作成功');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('操作失败，请稍后再试');
-    return false;
-  }
-};
 
 const TableList: React.FC = () => {
   const actionRef = useRef<ActionType>();
   // 当前查看用户数据，有数据则展示用户弹窗，没有则不展示
   const [currentRow, setCurrentRow] = useState<any>();
+  // 请求参数
+  const [searchParams, setSearchParams] = useState<any>();
   
 
   const columns: ProColumns<API.RuleListItem>[] = [
@@ -177,18 +121,21 @@ const TableList: React.FC = () => {
         toolbar={{
           settings: []
         }}
-        toolBarRender={() => [
+        toolBarRender={(...b) => [
           <Button
           type="default"
           key="primary"
-          onClick={() => {
+          onClick={(a:any) => {
             // handleModalOpen(true);
+            const {current,pageSize, ...params} = searchParams
+            console.log('1111', a,b,actionRef.current, searchParams)
+            window.open(baseURL+ '/admin/user/export?'+ jsonToQueryString(params))
           }}
         >
          导出
         </Button>,
         ]}
-        request={getUserList}
+        request={(params) => { setSearchParams(params); return getUserList(params)}}
         columns={columns}
       />
       {!!currentRow?.id && <UserDetailModal onClose={() => setCurrentRow(null)} data={currentRow} />}
