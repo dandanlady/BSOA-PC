@@ -1,7 +1,8 @@
 ﻿import type { RequestOptions } from '@@/plugin-request/request';
 import type { RequestConfig } from '@umijs/max';
+import { history } from'@umijs/max';
 import { message, notification } from 'antd';
-import { baseURL } from '../config/const';
+import { baseURL, loginPath } from '../config/const';
 
 // 错误处理方案： 错误类型
 enum ErrorShowType {
@@ -33,6 +34,7 @@ export const errorConfig: RequestConfig = {
     errorThrower: (res) => {
       const { code, data, msg } =
         res as any;
+        console.log('2222 res', res)
       if (code != 200 || code != 0) {
         const error: any = new Error(msg);
         error.name = 'BizError';
@@ -93,10 +95,14 @@ export const errorConfig: RequestConfig = {
   requestInterceptors: [
     (config: RequestOptions) => {
       // 拦截请求配置，进行个性化处理。
-      // const url = config?.url?.concat('?token = 123');
-      // return { ...config, url };
       return config
     },
+    [(url, options:any) => { 
+        if(localStorage.getItem("token")){
+          options.headers.token = localStorage.getItem("token")
+        }
+        return { url, options }
+    }]
   ],
 
   // 响应拦截器
@@ -106,7 +112,9 @@ export const errorConfig: RequestConfig = {
       const { data } = response as unknown as ResponseStructure;
       console.log('2222 response', response)
       if (data?.code != 200 ) {
-        // message.error('请求失败！');
+        if(data?.code === 4043){
+          history.push(loginPath)
+        }
         throw new Error(data.msg)
         // return data
       }

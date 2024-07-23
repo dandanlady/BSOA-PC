@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { addRule, removeRule, rule, updateRule } from '@/services/pc/api';
+import {  removeRule, getGradeList } from '@/services/pc/api';
 import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import {
@@ -86,7 +86,7 @@ const TableList: React.FC<{data:any; onClose:() => void}> = ({data, onClose}) =>
       {label:"证件类型", key:'identityType', valueEnum:{1:"身份证", 2:"护照"}},
       {label:"手机号", key:'phone'},
       {label:"证件号", key:'identityId'},
-      {label:"状态", key:'status', valueEnum:{0:"未认证", 1:"已认证"}},
+      {label:"状态", key:'status', valueEnum:{0:"未认证", 1:"已个人认证", 2:"已学院认证"}},
       {label:"性别", key:'gender', valueEnum:{1:"男", 2:"女"}},
       {label:"所属院校", key:'collegeName'},
       {label:"参赛场次", key:'competitionNum'},
@@ -123,7 +123,7 @@ const TableList: React.FC<{data:any; onClose:() => void}> = ({data, onClose}) =>
             settings: []
             }}
             pagination={{ pageSize: 10}}
-            request={rule}
+            request={(params:any) => getGradeList({...params, runnerId:data.id})}
             columns={columns}
             style={{padding:0}}
         />

@@ -7,11 +7,9 @@ import type { RunTimeLayoutConfig } from '@umijs/max';
 import { history, Link } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
-import { currentUser as queryCurrentUser } from '@/services/pc/api';
 import React from 'react';
 import logo from './assets/Arco.svg'
-const isDev = process.env.NODE_ENV === 'development';
-const loginPath = '/user/login';
+import { loginPath } from '../config/const';
 
 /**
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
@@ -52,6 +50,7 @@ export async function getInitialState(): Promise<{
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
+  const token = localStorage.getItem('token'); // 是否登录，简单处理，放在storage里
   return {
     // actionsRender: () => [<Question key="doc" />, <SelectLang key="SelectLang" />],
     avatarProps: {
@@ -69,9 +68,8 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     onPageChange: () => {
       const { location } = history;
       // 如果没有登录，重定向到 login
-      if (!initialState?.currentUser && location.pathname !== loginPath) {
-        // todo
-        // history.push(loginPath);
+      if (!token && location.pathname !== loginPath) {
+        history.push(loginPath);
       }
     },
     bgLayoutImgList: [

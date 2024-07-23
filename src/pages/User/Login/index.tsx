@@ -1,22 +1,17 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
-  AlipayOutlined,
   LockOutlined,
-  MobileOutlined,
-  TaobaoOutlined,
   UserOutlined,
-  WeiboOutlined,
 } from '@ant-design/icons';
 import {
   LoginFormPage,
   ProConfigProvider,
-  ProFormCaptcha,
-  ProFormCheckbox,
   ProFormText,
 } from '@ant-design/pro-components';
 import { Button, Divider, Space, Tabs, message, theme } from 'antd';
-// import type { CSSProperties } from 'react';
+import { getLogin } from '@/services/pc/login';
 import { useState } from 'react';
+import { AnyNode } from 'postcss';
 const Page = () => {
   const { token } = theme.useToken();
   return (
@@ -36,7 +31,18 @@ const Page = () => {
           backdropFilter: 'blur(4px)',
         }}
         subTitle="翻山越岭  遇见更好的自己！"
-        onFinish={() => {alert('11')}}
+        onFinish={async (params:any) => {
+          // 创建FormData实例
+          const formData = new FormData();
+          formData.append('userName', params.username); // 添加表单字段
+          formData.append('password', params.password); // 添加表单字段
+          const res:any = await getLogin(params);
+          console.log('login res', params , res);
+          if(res){
+            localStorage.setItem("token", res?.data?.token)
+            history.go(-1)
+          }   
+        }}
         // activityConfig={{
         //   style: {
         //     boxShadow: '0px 0px 8px rgba(0, 0, 0, 0.2)',
@@ -76,7 +82,7 @@ const Page = () => {
       
           <>
             <ProFormText
-              name="username"
+              name="userName"
               fieldProps={{
                 size: 'large',
                 prefix: (

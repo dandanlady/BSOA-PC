@@ -87,7 +87,11 @@ const TableList: React.FC = () => {
           status: 'Warning',
         },
         1: {
-          text: "已认证",
+          text: "已个人认证",
+          status: 'Success',
+        },
+        2: {
+          text: "已学院认证",
           status: 'Success',
         },
       },
@@ -126,9 +130,7 @@ const TableList: React.FC = () => {
           type="default"
           key="primary"
           onClick={(a:any) => {
-            // handleModalOpen(true);
             const {current,pageSize, ...params} = searchParams
-            console.log('1111', a,b,actionRef.current, searchParams)
             window.open(baseURL+ '/admin/user/export?'+ jsonToQueryString(params))
           }}
         >
